@@ -1,0 +1,4 @@
+<h1><%= @search.job_title %></h1>
+<p><%= @search.job_description %></p>
+<%= link_to "Edit", edit_search_path(@search) %>
+<%= link_to "Delete", @search, data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>

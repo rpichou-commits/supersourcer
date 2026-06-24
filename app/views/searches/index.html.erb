@@ -1,0 +1,8 @@
+<h1>Here are your current searches</h1>
+<ul>
+  <% @searches.each do |search| %>
+    <li><%= link_to search.job_title, search_path(search) %></li>
+  <% end %>
+</ul>
+
+<button><%= link_to "New Search", new_search_path %></button>

@@ -1,0 +1,8 @@
+<h1>Edit Search</h1>
+<%= simple_form_for @search do |f| %>
+  <%= f.input :job_title %>
+  <%= f.input :job_description %>
+
+  <%= f.submit "Update Search", class: "btn btn-primary" %>
+<% end %>
+
