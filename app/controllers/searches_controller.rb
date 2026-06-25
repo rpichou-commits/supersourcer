@@ -14,6 +14,23 @@ class SearchesController < ApplicationController
   def create
     @search = Search.new(search_params)
     if @search.save
+      query = "#{@search.job_title} #{@search.job_description}"
+      exa_response = ExaSearchService.new(query).call
+      search_result = @search.search_results.create!(
+        query: query,
+        raw_response: exa_response,
+        status: "completed"
+      )
+
+      exa_response["results"].each do |result|
+        search_result.potential_candidates.create!(
+          full_name: result["title"],
+          summary: result["highlights"]&.join("\n"),
+          linkedin_url: result["url"].include?("linkedin.com") ? result["url"] : nil,
+          github_url: result["url"].include?("github.com") ? result["url"] : nil,
+          source_url: result["url"]
+        )
+      end
       redirect_to @search, notice: "Search was successfully created."
     else
       render :new

@@ -2,3 +2,34 @@
 <p><%= @search.job_description %></p>
 <%= link_to "Edit", edit_search_path(@search) %>
 <%= link_to "Delete", @search, data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
+<%= link_to "Back to Searches", searches_path %>
+
+<h1>Saved Candidates</h1>
+<ul>
+  <% @search.candidates.each do |candidate| %>
+    <li><%= candidate.full_name %> - <%= candidate.linkedin_profile %> - <%= candidate.github_profile %> - <%= candidate.summary %></li>
+    <%= link_to "Delete", search_candidate_path(@search, candidate), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
+  <% end %>
+</ul>
+
+<H1>Potential Candidates</H1>
+<% @potential_candidates.each do |potential_candidate| %>
+  <div>
+    <h3><%= potential_candidate.full_name %></h3>
+
+    <p><%= potential_candidate.summary %></p>
+
+    <% if potential_candidate.linkedin_url.present? %>
+      <%= link_to "LinkedIn", potential_candidate.linkedin_url, target: "_blank" %>
+    <% end %>
+
+    <% if potential_candidate.github_url.present? %>
+      <%= link_to "GitHub", potential_candidate.github_url, target: "_blank" %>
+    <% end %>
+
+    <%= button_to "Save as candidate",
+        search_candidates_path(@search, potential_candidate_id: potential_candidate.id),
+        method: :post,
+        class: "btn btn-primary" %>
+  </div>
+<% end %>

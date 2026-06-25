@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_24_190104) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_25_192844) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,6 +23,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_190104) do
     t.text "summary"
     t.datetime "updated_at", null: false
     t.index ["search_id"], name: "index_candidates_on_search_id"
+  end
+
+  create_table "potential_candidates", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "full_name"
+    t.string "github_url"
+    t.string "linkedin_url"
+    t.bigint "search_result_id", null: false
+    t.string "source_url"
+    t.text "summary"
+    t.datetime "updated_at", null: false
+    t.index ["search_result_id"], name: "index_potential_candidates_on_search_result_id"
+  end
+
+  create_table "search_results", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "query"
+    t.json "raw_response"
+    t.bigint "search_id", null: false
+    t.string "status"
+    t.datetime "updated_at", null: false
+    t.index ["search_id"], name: "index_search_results_on_search_id"
   end
 
   create_table "searches", force: :cascade do |t|
@@ -45,4 +67,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_190104) do
   end
 
   add_foreign_key "candidates", "searches"
+  add_foreign_key "potential_candidates", "search_results"
+  add_foreign_key "search_results", "searches"
 end
