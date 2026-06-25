@@ -9,6 +9,7 @@ class SearchesController < ApplicationController
 
   def show
     @search = Search.find(params[:id])
+    @potential_candidates = @search.potential_candidates
   end
 
   def create
