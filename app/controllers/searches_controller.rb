@@ -24,13 +24,14 @@ class SearchesController < ApplicationController
       )
 
       exa_response["results"].each do |result|
-        summary_data = JSON.parse(result.to_json)
+        summary_data = parse_summary(result["summary"])
+        url = result["url"].to_s
         search_result.potential_candidates.create!(
-          full_name: summary_data["name"],
-          summary: summary_data["headline"],
-          linkedin_url: summary_data["url"].include?("linkedin.com") ? summary_data["url"] : nil,
-          github_url: summary_data["url"].include?("github.com") ? summary_data["url"] : nil,
-          source_url: summary_data["url"]
+          full_name: summary_data["name"].presence || result["title"],
+          summary: [summary_data["headline"], summary_data["location"]].compact_blank.join(" — "),
+          linkedin_url: url.include?("linkedin.com") ? url : nil,
+          github_url: url.include?("github.com") ? url : nil,
+          source_url: url
         )
       end
       redirect_to @search, notice: "Search was successfully created."
@@ -62,5 +63,11 @@ class SearchesController < ApplicationController
 
   def search_params
     params.require(:search).permit(:job_title, :job_description)
+  end
+
+  def parse_summary(summary)
+    JSON.parse(summary.to_s)
+  rescue JSON::ParserError
+    {}
   end
 end
