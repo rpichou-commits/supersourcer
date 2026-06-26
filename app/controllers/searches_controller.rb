@@ -24,13 +24,13 @@ class SearchesController < ApplicationController
       )
 
       exa_response["results"].each do |result|
-        result = JSON.parse(result.to_json)
+        summary_data = JSON.parse(result.to_json)
         search_result.potential_candidates.create!(
-          full_name: result["title"],
-          summary: result["summary"],
-          linkedin_url: result["url"].include?("linkedin.com") ? result["url"] : nil,
-          github_url: result["url"].include?("github.com") ? result["url"] : nil,
-          source_url: result["url"]
+          full_name: summary_data["name"],
+          summary: summary_data["headline"],
+          linkedin_url: summary_data["url"].include?("linkedin.com") ? summary_data["url"] : nil,
+          github_url: summary_data["url"].include?("github.com") ? summary_data["url"] : nil,
+          source_url: summary_data["url"]
         )
       end
       redirect_to @search, notice: "Search was successfully created."
