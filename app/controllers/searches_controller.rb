@@ -24,9 +24,10 @@ class SearchesController < ApplicationController
       )
 
       exa_response["results"].each do |result|
+        result = JSON.parse(result.to_json)
         search_result.potential_candidates.create!(
           full_name: result["title"],
-          summary: result["highlights"]&.join("\n"),
+          summary: result["summary"],
           linkedin_url: result["url"].include?("linkedin.com") ? result["url"] : nil,
           github_url: result["url"].include?("github.com") ? result["url"] : nil,
           source_url: result["url"]
