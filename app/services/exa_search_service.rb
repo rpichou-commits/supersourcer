@@ -1,13 +1,7 @@
-require "net/http"
-require "json"
-
-# Queries the Exa search API (https://exa.ai) and returns the parsed response.
-#
-# Usage:
-#   ExaSearchService.new("Full-stack Ruby developer in Paris").call
-#   # => { "results" => [ { "title" => ..., "url" => ..., "highlights" => [...] }, ... ] }
 class ExaSearchService
-  ENDPOINT = "https://api.exa.ai/search".freeze
+  include HTTParty
+  base_uri "https://api.exa.ai"
+
   DEFAULT_NUM_RESULTS = 10
 
   class Error < StandardError; end
@@ -21,30 +15,37 @@ class ExaSearchService
     api_key = ENV["EXA_API_KEY"]
     raise Error, "EXA_API_KEY is not set" if api_key.blank?
 
-    uri = URI(ENDPOINT)
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    http.open_timeout = 10
-    http.read_timeout = 30
+    response = self.class.post(
+      "/search",
+      headers: {
+        "x-api-key" => api_key,
+        "Content-Type" => "application/json"
+      },
+      body: {
+        query: @query,
+        category: "people",                              # Exa's curated 1B+ people index
+        includeDomains: ["linkedin.com", "github.com"],  # only these sites
+        numResults: @num_results,
+        contents: {
+          summary: {
+            schema: {
+              type: "object",
+              properties: {
+                name:     { type: "string", description: "The person's full name only" },
+                headline: { type: "string", description: "Their current job title" },
+                location: { type: "string" }
+              }
+            }
+          }
+        }
+      }.to_json
+    )
 
-    request = Net::HTTP::Post.new(uri)
-    request["x-api-key"] = api_key
-    request["Content-Type"] = "application/json"
-    request["Accept"] = "application/json"
-    request.body = {
-      query: @query,
-      type: "auto",
-      numResults: @num_results,
-      contents: { highlights: true }
-    }.to_json
-
-    response = http.request(request)
-
-    unless response.is_a?(Net::HTTPSuccess)
+    unless response.success?
       raise Error, "Exa API returned #{response.code}: #{response.body}"
     end
 
-    parsed = JSON.parse(response.body)
+    parsed = response.parsed_response   # HTTParty already turned JSON into a Ruby hash
     parsed["results"] ||= []
     parsed
   end
