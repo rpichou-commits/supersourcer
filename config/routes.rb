@@ -2,7 +2,7 @@ Rails.application.routes.draw do
   get "searches/index"
   get "searches/new"
   get "searches/show"
-  post "searches/analyze", to => "searches#analyze"
+  post "searches/analyze", to: "searches#analyze"
   devise_for :users
   root to: "searches#index"
   get "up" => "rails/health#show", as: :rails_health_check
