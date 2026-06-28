@@ -23,8 +23,8 @@ class ExaSearchService
       },
       body: {
         query: @query,
-        category: "people",                              # Exa's curated 1B+ people index
-        includeDomains: ["linkedin.com"],  # only these sites
+        category: "people",
+        includeDomains: ["linkedin.com"],
         numResults: @num_results,
         contents: {
           summary: {
